@@ -306,7 +306,8 @@ module ActiveRecord
       # Is this connection alive and ready for queries?
       def active?
         @lock.synchronize do
-          @connection.query ";"
+          return false unless @raw_connection
+          return false unless @raw_connection.status == 0 # CONNECTION_OK
         end
         true
       rescue PG::Error
