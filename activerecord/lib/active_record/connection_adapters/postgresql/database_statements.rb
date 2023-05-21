@@ -16,7 +16,12 @@ module ActiveRecord
 
           log(sql, name) do
             ActiveSupport::Dependencies.interlock.permit_concurrent_loads do
-              @connection.async_exec(sql).map_types!(@type_map_for_results).values
+              pg_result = @connection.async_exec(sql)
+              begin
+                pg_result.map_types!(@type_map_for_results).values
+              ensure
+                pg_result.clear
+              end
             end
           end
         end
